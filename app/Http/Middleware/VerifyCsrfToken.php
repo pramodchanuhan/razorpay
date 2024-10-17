@@ -13,7 +13,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        // Add your URIs here
         '/payment/callback',
     ];
 }

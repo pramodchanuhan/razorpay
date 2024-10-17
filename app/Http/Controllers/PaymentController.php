@@ -39,42 +39,14 @@ class PaymentController extends Controller
     public function paymentCallback(Request $request)
     {
         try {
-            // Retrieve all the POST data sent by Razorpay
-            $data = $request->all();
-            dd($data);
-            logger("Payment Callback Data: ", $data);
-
-            // Extract necessary fields from the request
-            $orderId = $data['razorpay_order_id'] ?? null;
-            $paymentId = $data['razorpay_payment_id'] ?? null;
-            $signature = $data['razorpay_signature'] ?? null;
-
-            // Log any missing data
-            if (!$orderId || !$paymentId || !$signature) {
-                logger("Payment data missing: Order ID - $orderId, Payment ID - $paymentId, Signature - $signature");
-                return redirect('/payment/error')->with('error', 'Payment data is missing.');
-            }
-
-            // Verify the Razorpay signature
-            $api = new Api(config('payment.idfc.api_key'), config('payment.idfc.api_secret'));
-
-            $attributes = [
-                'razorpay_order_id' => $orderId,
-                'razorpay_payment_id' => $paymentId,
-                'razorpay_signature' => $signature
-            ];
-
-            $api->utility->verifyPaymentSignature($attributes);
-
-            // If verification succeeds, you can process the payment
-            // Example: Update the order in the database and mark it as paid
-            // $order = Order::where('order_id', $orderId)->first();
-            // if ($order) {
-            //     $order->payment_status = 'paid';
-            //     $order->payment_id = $paymentId;
-            //     $order->save();
-            // }
-
+            $request->validate([
+                'order_id' => 'required',
+            ]);
+    
+            $input = $request->all();
+            $api = new Api(config('payment.idfc.api_key'), config('payment.idfc.key_secret'));
+           
+                $payment = $api->payment->fetch($input['order_id']);
             return redirect('/payment/success')->with('status', 'Payment successful!');
         } catch (\Exception $e) {
             logger("Razorpay Signature Verification Failed: " . $e->getMessage());

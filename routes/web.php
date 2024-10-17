@@ -8,9 +8,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
-Route::post('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
-Route::post('/payment/error', [PaymentController::class, 'paymentError'])->name('payment.error');
-Route::post('/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::match(['get', 'post'], '/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
+
+Route::match(['get', 'post'], '/payment/error', [PaymentController::class, 'paymentError'])->name('payment.error');
+Route::match(['get', 'post'], '/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
